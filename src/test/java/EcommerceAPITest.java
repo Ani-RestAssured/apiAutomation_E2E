@@ -1,27 +1,15 @@
 
 import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.filter.Filter;
 import io.restassured.http.*;
-import io.restassured.mapper.ObjectMapper;
-import io.restassured.mapper.ObjectMapperType;
 import io.restassured.path.json.JsonPath;
-import io.restassured.response.Response;
 import io.restassured.specification.*;
 import pojo.LoginRequest;
 import pojo.LoginResponse;
 import pojo.PlaceOrderRequest;
 import pojo.PlaceOrderRequest_OrderDetails;
 import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
 import static io.restassured.RestAssured.given;
 
 public class EcommerceAPITest {
@@ -38,7 +26,8 @@ public class EcommerceAPITest {
         lR.setUserEmail("Learner@gmail.com");
         lR.setUserPassword("Learner@1234");
 
-        RequestSpecification reqLogin = given().spec(req).body(lR);
+//SSL Certificate issue workaround
+        RequestSpecification reqLogin = given().relaxedHTTPSValidation().spec(req).body(lR);
 
 
 //When we use deserialization
@@ -99,5 +88,14 @@ public class EcommerceAPITest {
 
         System.out.println(js2);
 
+//Delete Product
+
+        RequestSpecification deleteProductBaseReq = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com")
+                                                    .addHeader("Authorization",authToken)
+                                                    .build();
+//Add Path Params
+        RequestSpecification deleteProductReq = given().log().all().spec(deleteProductBaseReq).pathParam("productId",productId);
+
+        deleteProductReq.when().delete("/api/ecom/product/delete-product/{productId}").then().log().all().extract().response().asString();
     }
 }
