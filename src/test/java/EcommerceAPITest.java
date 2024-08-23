@@ -10,12 +10,14 @@ import io.restassured.response.Response;
 import io.restassured.specification.*;
 import pojo.LoginRequest;
 import pojo.LoginResponse;
-
+import pojo.PlaceOrderRequest;
+import pojo.PlaceOrderRequest_OrderDetails;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ public class EcommerceAPITest {
 
     public static void main (String[] args)
     {
+//Create New User
         RequestSpecification req =  new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com")
                                          .setContentType(ContentType.JSON)
                                          .build();
@@ -47,6 +50,7 @@ public class EcommerceAPITest {
         System.out.println(loginResponse.getUserId());
         String userID = loginResponse.getUserId();
 
+//Add Product
         RequestSpecification addProductBaseReq = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com")
                                                                          .addHeader("Authorization",authToken)
                                                                          .build();
@@ -67,5 +71,33 @@ public class EcommerceAPITest {
         JsonPath  js = new JsonPath(addProductResponseString);
 
         String productId = js.get("productId");
+
+//Place Order
+
+//Serializing the parameters
+
+        PlaceOrderRequest_OrderDetails por_od = new PlaceOrderRequest_OrderDetails();
+        por_od.setCountry("India");
+        por_od.setProductOrderedId(productId);
+
+        List<PlaceOrderRequest_OrderDetails> orderDetails = new ArrayList<PlaceOrderRequest_OrderDetails>();
+        orderDetails.add(por_od);
+
+        PlaceOrderRequest por = new PlaceOrderRequest();
+        por.setOrder(orderDetails);
+
+        RequestSpecification createOrderBaseReq = new RequestSpecBuilder().setBaseUri("https://rahulshettyacademy.com")
+                                    .setContentType(ContentType.JSON)
+                                    .addHeader("Authorization",authToken)
+                                    .build();
+
+        RequestSpecification createOrder = given().log().all().spec(createOrderBaseReq).body(por);
+
+        String responseCreateOrder = createOrder.when().post("/api/ecom/order/create-order").then().log().all().extract().response().asString();
+
+        JsonPath js2 = new JsonPath(responseCreateOrder);
+
+        System.out.println(js2);
+
     }
 }
