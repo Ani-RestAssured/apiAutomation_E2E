@@ -4,9 +4,7 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import pojo.LoginRequest;
 import pojo.LoginResponse;
-
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
 
 public class EcommerceAPITest {
 
